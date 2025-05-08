@@ -1,4 +1,34 @@
 ====================================================================================================
+Guide de modification d'un Environnement Python sur WSL-Ubuntu dans un Dépôt GitHub Commun
+====================================================================================================
+# 1. Cloner le dépôt et naviguer dans le répertoire du projet
+git clone https://github.com/votre_nom_utilisateur/nom_du_depot.git
+cd nom_du_depot
+
+# 2. Créer l'environnement virtuel Python
+python3 -m venv env
+
+# 3. Activer l'environnement virtuel
+source env/bin/activate
+
+# 4. Installer les dépendances du projet
+pip install -r requirements.txt
+
+# (Optionnel) Mettre à jour le fichier requirements.txt après modification des dépendances
+pip freeze > requirements.txt
+
+# 5. Gérer les modifications avec Git
+git add .
+git commit -m "Votre message de commit ici"
+git push origin main
+
+# Pour récupérer les dernières modifications du dépôt distant
+git pull origin main
+
+
+
+
+====================================================================================================
 Guide d'Initialisation d'un Environnement Python sur WSL-Ubuntu dans un Dépôt GitHub Commun
 ====================================================================================================
 

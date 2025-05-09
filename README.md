@@ -12,7 +12,7 @@ python3 -m venv env
 source env/bin/activate
 
 # 4. Installer les dépendances du projet
-pip install -r requirements.txt
+pip install -r dna-model-python/requirements.txt
 
 # (Optionnel) Mettre à jour le fichier requirements.txt après modification des dépendances
 pip freeze > requirements.txt

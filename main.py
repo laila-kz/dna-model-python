@@ -1,54 +1,58 @@
-class nucleotide :
-    def __init__ (self,nom, type, complementaire):
-        self.nom = nom
-        self.type= type
-        self.complementaire = complementaire
-    
-    def toString(self):
-        return self.complementaire
-    
+import random
 
-    def geComplemantaire(self):
+class Nucleotide:
+    def __init__(self, nom, type_base, complementaire):
+        self.nom = nom
+        self.type = type_base
+        self.complementaire = complementaire
+
+    def getComplementaire(self):
         return self.complementaire
-    
-class A(nucleotide):
+
+    def toString(self):
+        return f"P-D-{self.nom}"
+
+
+class A(Nucleotide):
     def __init__(self):
         super().__init__('A', 'purine', 'T')
 
-class T(nucleotide):
+class T(Nucleotide):
     def __init__(self):
-        super().__init__('T', 'purine', 'A')
+        super().__init__('T', 'pyrimidine', 'A')
 
-class C(nucleotide):
+class C(Nucleotide):
     def __init__(self):
-        super().__init__('C', 'purine', 'G')
+        super().__init__('C', 'pyrimidine', 'G')
 
-
-class G(nucleotide):
+class G(Nucleotide):
     def __init__(self):
         super().__init__('G', 'purine', 'C')
 
 
-class pontADN:
-    def __init__(self,baseGauche, baseDroite, liaisons_h):
-        self.baseGauche= baseGauche
-        self.baseDroite= baseDroite
-        if self.gauche.getComplementaire() != self.baseDroite:
-            raise ValueError("Les bases ne sont pas complémentaires !")
-        self._typePont= f"{self.baseGauche}-{self.baseDroite}"
-        self.liasions_h= liaisons_h
+def generate_random_nucleotide():
+    return random.choice([A(), T(), C(), G()])
 
-        
 
-    def getType(self):
-        return self._typePont
-
+class PontADN:
+    def __init__(self, symbol=None):
+        if symbol not in ["A", "T", "C", "G"]:
+            print('Caractere entré invalide...\nChoix aléatoire de caractère')
+            symbol = random.choice(["A", "T", "C", "G"])
+        self.baseGauche = symbol  # define the left base
+        self.baseDroite = Nucleotide(symbol).getComplement()
+    
     def toString(self):
-        if self.liaisons_h == 2:
-            return f"{self.baseGauche} = {self.baseDroite}"
-        elif self.liaisions_h == 3:
-            return f"{self.baseGauche} ≡ {self.baseDroite}"
+        return f"{self.baseGauche}-{self.baseDroite}"
+    
+    def nbHydrogen(self):
+        if self.baseGauche in ["A", "T"]:
+            return 2
+        elif self.baseGauche in ["C", "G"]:
+            return 3
+        return 0
 
+HEAD
 #############################
 #### WILLY'S CODE  ##########
 #############################
@@ -91,6 +95,7 @@ class PontADN:
         return 0
 
 
+ 7fd39ce (changed the first class using heritage)
 class MoleculeADN:
     def __init__(self, nb=50):
         self.brin = [PontADN() for _ in range(nb)]
@@ -135,6 +140,7 @@ class MoleculeADN:
                 cg += 1
         # Prevent division by zero
         return at/cg if cg != 0 else float('infini !')
+<<<<<<< HEAD
     
     # def searchPattern(self, pattern):
     #     def check(x):
@@ -146,3 +152,17 @@ class MoleculeADN:
     #     for i in range(len(self.brin)):
     #         ind=0
     #         if self.
+=======
+
+    # def searchPattern(self, pattern):
+    #      def check(x):
+    #          if x not in ["A","T","C","G"] :
+    #              return f"ERREUR ! {x} n'est pas une base"
+    #      a= list(map(check,pattern))
+    #      a=len(a)
+        
+    #      for i in range(len(self.brin)):
+    #          ind=0
+    #          if self.
+    
+>>>>>>> 7fd39ce (changed the first class using heritage)

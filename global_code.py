@@ -1,6 +1,6 @@
 import random
 import sys
-from bitarray import bitarray
+from bitarray import bitarray # type: ignore 
 
 # Dictionnaire de complémentarité pour les bases ADN.
 # Il sera utilisé pour déterminer la base complémentaire d'une entrée donnée.

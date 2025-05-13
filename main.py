@@ -17,7 +17,7 @@ class Nucleotide:
     """
 
     def __init__(self, nom):
-        # Vérifier que le paramètre 'nom' est une chaîne de caractères.
+        # Vérifier que le paramètre 'nom' est un caractère.
         while True:
             try:
                 if not isinstance(nom, str):
@@ -111,11 +111,14 @@ class PontADN:
     """
 
     def __init__(self, symbol=None):
-        # Vérifier que 'symbol' est une chaîne.
-        if not isinstance(symbol, str):
-            raise ValueError(
-                "Le symbole doit être une chaîne de caractères (par exemple 'A', 'T', 'C' ou 'G')."
-            )
+        # Vérifier que le paramètre 'symbol' est un caractère.
+        while True:
+            try:
+                if not isinstance(symbol, str):
+                    raise ValueError("Le nucléotide doit être fourni en tant que chaîne (par exemple 'A', 'T', 'C' ou 'G').")
+                break
+            except ValueError as e:
+                symbol=int(input("Veuillez entrer le symbole d'une base azotée: "))
 
         # Conversion en majuscules.
         symbol = symbol.upper()
@@ -130,17 +133,18 @@ class PontADN:
         self._baseGauche = nucleotide_map[symbol]()  # Base gauche
         self._baseDroite = nucleotide_map[complements.get(symbol, "A")]()  # Base droite complémentaire
 
+    def symbol(self):
+        """
+        Retourne le symbole de la base gauche.
+        """
+        return self._baseGauche.symbol()
+    
     def toString(self):
         """
         Renvoie la représentation sous forme "A-T", "C-G", etc.
         """
         return f"{self._baseGauche.symbol()}-{self._baseDroite.symbol()}"
 
-    def symbol(self):
-        """
-        Retourne le symbole de la base gauche.
-        """
-        return self._baseGauche.symbol()
 
     def nbHydrogen(self):
         """
@@ -166,9 +170,16 @@ class MoleculeADN:
     
     De plus, des méthodes d'optimisation mémoire sont intégrées:
       - compactRepresentation() : Représente la molécule sous forme compacte en utilisant bitarray.
+        # Cette méthode réduit la taille en mémoire en codant chaque base sur 2 bits au lieu d'utiliser des objets Python complets.
+        
       - rawSize() : Calcule la taille approximative du stockage naïf de l'objet.
+        # Cette méthode évalue la taille brute en octets de la liste d'objets PontADN et de leurs attributs.
+        
       - optimizedSize() : Calcule la taille de la représentation compacte.
-      - optimizationFactor() : Calcule le facteur d'optimisation (rapport rawSize/optimizedSize).
+        # Cette méthode évalue la taille de la représentation compacte en mémoire en tenant compte des attributs des objets.
+        
+      - optimizationFactor() : Calcule le facteur d'optimisation (rapport rawSize/optimizedSize  qui doit === 1/8).
+        # Cette méthode évalue le rapport entre la taille brute et la taille optimisée.
     """
 
     def __init__(self, nb=50):
@@ -184,7 +195,7 @@ class MoleculeADN:
             except ValueError as e:
                 print(e)
                 nb = int(input("Entrer un nombre valide: "))
-
+    
     def getFragment(self, pos=1, leng=10):
         """
         Extrait et retourne un fragment de la molécule.
@@ -195,6 +206,7 @@ class MoleculeADN:
             
         La position est convertie en indice 0-based.
         """
+
         try:
             if pos < 1 or leng <= 0:
                 raise ValueError(
@@ -229,7 +241,7 @@ class MoleculeADN:
                     raise ValueError("ERREUR! Le caractère doit être soit A, T, C, ou G.")
                 
                 # Affichage préliminaire de la liaison recherchée.
-                print(f"Recherche de la première occurrence de la liaison {PontADN(cara).toString()}")
+                print(f"Recherche de la première occurrence de la liaison {PontADN(cara).toString()}...")
                 pos = 0
                 for elm in self.brin:
                     if elm._baseGauche.symbol() == cara:
@@ -370,7 +382,21 @@ class MoleculeADN:
             bits_string += mapping[base]
         
         ba = bitarray(endian='big')
+        """La méthode `bitarray` crée un tableau de bits, et l'attribut `endian='big'` 
+        spécifie que les bits les plus significatifs sont stockés en premier :
+        
+        Imaginons que vous voulez représenter le nombre 5 en binaire (101), et que vous utilisez un tableau de 8 bits :
+        Avec endian='big', les bits sont stockés comme : 00000101 (les bits importants à gauche).
+        Avec endian='little', les bits sont stockés comme : 10100000 (les bits importants à droite).
+        """
+        
         ba.extend(bits_string)
+        """
+        La méthode `extend` permet d'ajouter la chaîne de bits à l'objet bitarray.
+        Fonctionnement :
+        La méthode lit chaque caractère de la chaîne bits_string et l'ajoute comme un bit dans le tableau ba.
+        Si bits_string = "1101", alors après cette opération, ba contiendra les bits [1, 1, 0, 1].        
+        """
         return ba
 
     def rawSize(self):

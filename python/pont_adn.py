@@ -1,5 +1,5 @@
 import random
-from nucleotide import A, T, C, G, complements
+from .nucleotide import A, T, C, G, complements
 
 # =============================================================================
 # Classe PontADN

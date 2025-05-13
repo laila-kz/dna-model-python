@@ -1,8 +1,8 @@
 import sys
 import random
 from bitarray import bitarray # type: ignore
-from pont_adn import PontADN
-from nucleotide import complements
+from .pont_adn import PontADN
+from .nucleotide import complements
 
 # =============================================================================
 # Classe MoleculeADN

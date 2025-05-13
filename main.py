@@ -1,8 +1,8 @@
-import typer
+import typer # type: ignore
 #On importe la bibliothèque qui aide à organiser et 
 # lancer les commandes dans le programme.
 
-from rich import print
+from rich import print # type: ignore
 # On importe une version améliorée de la fonction print 
 # qui permet d’afficher du texte coloré ou formaté facilement.
 

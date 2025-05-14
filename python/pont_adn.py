@@ -19,7 +19,7 @@ class PontADN:
         def creation(self, symbol):
             nucleotide_map = {"A": A, "T": T, "C": C, "G": G}
             self._baseGauche = nucleotide_map[symbol]()  # Base gauche
-            self._baseDroite = nucleotide_map[complements.get(symbol, "A")]()
+            self._baseDroite = nucleotide_map[complements.get(symbol, None)]()
         
         attempt=1
         if choix==None :
@@ -30,17 +30,17 @@ class PontADN:
                     print("\nERREUR DE SAISIE ! Veuillez entrer un nombre entier.")
                     choix = None
                 attempt+=1
-                if (choix not in [1, 2] and attempt<6) :
-                    print(f"\nIl vous reste {5-attempt} tentatives"); time.sleep(2)
+                if (choix not in [1, 2] and attempt<4) :
+                    print(f"\nIl vous reste {3-attempt} tentatives"); time.sleep(2)
                 if (choix in [1, 2]) :
                     break
-                if (attempt >= 6) :
+                if (attempt >= 4) :
                     print("\nEXCES DE TENTATIVES OU VALEUR INCORRECTE ! Choix aléatoire..."); time.sleep(2)
                     choix=1
                     break
 
         if (choix==1):
-            symbol = random.choice(["A", "T", "C", "G"]) if symbol is None else symbol
+            symbol = random.choice(["A", "T", "C", "G"])
             creation(self,symbol=symbol)
         elif (choix==2):
             if (symbol is None) :

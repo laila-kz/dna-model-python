@@ -32,9 +32,9 @@ class Nucleotide:
                     self._nom = nom
                     break
                 # Si le caractère n'est pas valide, on choisit aléatoirement une base parmi A, T, C, G.
-                if (attempt<6):
+                if (attempt<4):
                     if (nom not in ["A", "T", "C", "G"]):
-                        raise ValueError(f"Caractère entré invalide...\nIl vous reste {6-attempt} tentatives")
+                        raise ValueError(f"Caractère entré invalide...\nIl vous reste {4-attempt} tentatives")
                 
                 print("Vous avez épuisé vos tentatives d'entrer un caractère..."); time.sleep(2); print("Choix aléatoire de caractère"); time.sleep(2)
                 self._nom = random.choice(["A", "T", "C", "G"])
@@ -47,10 +47,6 @@ class Nucleotide:
                 attempt+=1
                 continue
 
-        # Dictionnaire pour déterminer le type de la base (purine ou pyrimidine).
-        types = {'A': 'purine', 'G': 'purine', 'T': 'pyrimidine', 'C': 'pyrimidine'}
-        self._type = types.get(self._nom, None)
-        
         # Calcul de la base complémentaire.
         self._complementaire = self.getComplementaire()
 
@@ -107,4 +103,3 @@ def generate_random_nucleotide():
     Retourne une instance de A, T, C ou G.
     """
     return random.choice([A(), T(), C(), G()])
-

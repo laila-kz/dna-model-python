@@ -22,7 +22,7 @@ def run():
     time.sleep(5)
     
     print("Bienvenue dans Lilliw's DNA, où vous pouvez créer et manipuler un ADN à votre guise !")
-    time.sleep(10)
+    time.sleep(7)
     print("Par quoi souhaiteriez vous commencer ?\n")
     while True:
         choice1 = int(input('Menu : \n\n [1]Je souhaite modéliser un nucléotide\n[2]Les relations entre nucléotides me conviendraient\n[3]Passons directement à l\'ADN\n[4]Quitter==>Votre choix: '))

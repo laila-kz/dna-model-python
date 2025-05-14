@@ -14,9 +14,10 @@ cd nom_du_depot
 Explication :
     - Sur votre WSL, dans un dossier que auriez nommé "dna-project" par ex., vous pouvez cloner notre dépôt gitHub
     - Vous obtiendrez ainsi : 
-        - tous les fichiers .py se trouvant dans le dossier python
+        - tous les fichiers .py se trouvant dans le dossier python, chacune contenant une classe
         - le fichier .gitignore
-        - le fichier requirements.txt
+        - le fichier requirements.txt contenant toutes les déendances
+        - le fichier main.py qui appelle les classes
 <br>
 # 2. Créer l'environnement virtuel Python
 python3 -m venv env

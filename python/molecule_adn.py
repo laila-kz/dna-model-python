@@ -99,7 +99,7 @@ class MoleculeADN:
                 print(e)
                 cara = input("Veuillez entrer un caractère valide (A, T, C, G): ")
 
-    def displayFragment(self, pos=1, leng=10):
+    def displayFragment(self, pos=-1, leng=-1):
         """
         Affiche graphiquement un fragment de la molécule.
         L'affichage utilise des symboles pour représenter visuellement les ponts.
@@ -108,7 +108,7 @@ class MoleculeADN:
             try:
                 if pos < 1 or leng <= 0:
                     raise ValueError(
-                        "La position doit être supérieure à 0 et la longueur positive."
+                        "\n\nLa position doit être supérieure à 0 et la longueur positive."
                     )
                 
                 # Dictionnaire pour choisir le type de liaison visuelle (p.ex. '=' ou '≡')

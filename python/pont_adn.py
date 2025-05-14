@@ -1,5 +1,6 @@
+import time
 import random
-from .nucleotide import A, T, C, G, complements
+from .nucleotide import A, T, C, G, complements, Nucleotide
 
 # =============================================================================
 # Classe PontADN
@@ -12,41 +13,54 @@ class PontADN:
     classes spécialisées. La conversion de l'entrée en majuscule est effectuée.
     """
 
-    def __init__(self, symbol=None, choix=1):
-        # Vérifier que le paramètre 'symbol' est un caractère.
-                match choix :
-                    case 1:
-                        symbol = random.choice(["A", "T", "C", "G"])
-                    case 2:
-                        while True:
-                            try:
-                                if not symbol:
-                                    raise ValueError("Un nucléotide doit être fourni (par exemple 'A', 'T', 'C' ou 'G').")
-                                # Conversion en majuscules.
-                                symbol = symbol.upper()
-                                # Si le symbole n'est pas valide, on en choisit un aléatoirement.
-                                if symbol not in ["A", "T", "C", "G"]:
-                                    print("Caractère entré invalide...\nChoix aléatoire de caractère")
-                                    symbol = random.choice(["A", "T", "C", "G"])
-                                break
-                            except ValueError as e:
-                                print(e)
-                                symbol = str(input("Veuillez entrer le symbole du nucléotide: ")).strip()
-                                continue
-                            
-                # Création des instances de base selon le mapping.
-                nucleotide_map = {"A": A, "T": T, "C": C, "G": G}
-                self._baseGauche = nucleotide_map[symbol]()  # Base gauche
-                self._baseDroite = nucleotide_map[complements.get(symbol, "A")]()  # Base droite complémentaire
+    def __init__(self, symbol=None, choix=None):
         
+        # fonction appelée lors de la création des ponts.
+        def creation(self, symbol):
+            nucleotide_map = {"A": A, "T": T, "C": C, "G": G}
+            self._baseGauche = nucleotide_map[symbol]()  # Base gauche
+            self._baseDroite = nucleotide_map[complements.get(symbol, "A")]()
         
-       
+        attempt=1
+        if choix==None :
+            while True:    
+                try:
+                    choix = int(input("Comment désirez-vous créer votre pont ?\n[1] De façon aleatoire\n[2] Avec un symbole azoté bien défini\n==>Votre choix: "))
+                except ValueError:
+                    print("\nERREUR DE SAISIE ! Veuillez entrer un nombre entier.")
+                    choix = None
+                attempt+=1
+                if (choix not in [1, 2] and attempt<6) :
+                    print(f"\nIl vous reste {5-attempt} tentatives"); time.sleep(2)
+                if (choix in [1, 2]) :
+                    break
+                if (attempt >= 6) :
+                    print("\nEXCES DE TENTATIVES OU VALEUR INCORRECTE ! Choix aléatoire..."); time.sleep(2)
+                    choix=1
+                    break
 
-    def symbol(self):
+        if (choix==1):
+            symbol = random.choice(["A", "T", "C", "G"]) if symbol is None else symbol
+            creation(self,symbol=symbol)
+        elif (choix==2):
+            if (symbol is None) :
+                symbol=Nucleotide().symbol()
+            creation(self,symbol=symbol)
+                
+    
+    def symbol_droite(self):
+        """
+        Retourne le symbole de la base gauche.
+        """
+        return self._baseDroite.symbol()
+
+
+    def symbol_gauche(self):
         """
         Retourne le symbole de la base gauche.
         """
         return self._baseGauche.symbol()
+    
     
     def toString(self):
         """

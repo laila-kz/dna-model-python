@@ -1,4 +1,5 @@
 import random
+import time
 
 # Dictionnaire de complémentarité pour les bases ADN.
 # Il sera utilisé pour déterminer la base complémentaire d'une entrée donnée.
@@ -14,8 +15,12 @@ class Nucleotide:
     La classe gère la conversion en majuscules et vérifie la validité de l'entrée.
     """
 
-    def __init__(self, nom):
+    def __init__(self, nom=None):
         # Vérifier que le paramètre 'nom' est un caractère.
+        if __name__==Nucleotide:
+            print("\nCREATION D'UN NUCLEOTIDE\n")
+        attempt=1
+        time.sleep(5)
         while True:
             try:
                 if not nom:
@@ -23,17 +28,23 @@ class Nucleotide:
                 
                 # Conversion de l'entrée en majuscules (même si ce n'est pas une base azotée) pour uniformiser l'information.
                 nom = nom.upper()
-                # Si le caractère n'est pas valide, on choisit aléatoirement une base parmi A, T, C, G.
-                if nom not in ["A", "T", "C", "G"]:
-                    print("Caractère entré invalide...\nChoix aléatoire de caractère")
-                    self._nom = random.choice(["A", "T", "C", "G"])
-                    print(f"Nouveau nucléotide à symbol: {self.symbol()}")
-                else:
+                if nom in ["A", "T", "C", "G"]:
                     self._nom = nom
+                    break
+                # Si le caractère n'est pas valide, on choisit aléatoirement une base parmi A, T, C, G.
+                if (attempt<6):
+                    if (nom not in ["A", "T", "C", "G"]):
+                        raise ValueError(f"Caractère entré invalide...\nIl vous reste {6-attempt} tentatives")
+                
+                print("Vous avez épuisé vos tentatives d'entrer un caractère..."); time.sleep(2); print("Choix aléatoire de caractère"); time.sleep(2)
+                self._nom = random.choice(["A", "T", "C", "G"])
+                print(f"Nouveau nucléotide à symbol: {self.symbol()}")
                 break
             except ValueError as e:
-                print(e)
+                print(f"\n{e}")
+                time.sleep(3)
                 nom = str(input("Veuillez entrer le symbole du nucléotide: ")).strip()
+                attempt+=1
                 continue
 
         # Dictionnaire pour déterminer le type de la base (purine ou pyrimidine).

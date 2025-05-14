@@ -18,23 +18,24 @@ class Nucleotide:
         # Vérifier que le paramètre 'nom' est un caractère.
         while True:
             try:
-                if not isinstance(nom, str):
-                    raise ValueError("Le nucléotide doit être fourni en tant que chaîne (par exemple 'A', 'T', 'C' ou 'G').")
+                if not nom:
+                    raise ValueError("Un nucléotide doit être fourni (par exemple 'A', 'T', 'C' ou 'G').")
+                
+                # Conversion de l'entrée en majuscules (même si ce n'est pas une base azotée) pour uniformiser l'information.
+                nom = nom.upper()
+                # Si le caractère n'est pas valide, on choisit aléatoirement une base parmi A, T, C, G.
+                if nom not in ["A", "T", "C", "G"]:
+                    print("Caractère entré invalide...\nChoix aléatoire de caractère")
+                    self._nom = random.choice(["A", "T", "C", "G"])
+                    print(f"Nouveau nucléotide à symbol: {self.symbol()}")
+                else:
+                    self._nom = nom
                 break
             except ValueError as e:
-                nom=int(input("Veuillez entrer le symbole d'une base azotée: "))
-        
-        # Conversion de l'entrée en majuscules (même si ce n'est pas une base azotée) pour uniformiser l'information.
-        nom = nom.upper()
+                print(e)
+                nom = str(input("Veuillez entrer le symbole du nucléotide: ")).strip()
+                continue
 
-        # Si le caractère n'est pas valide, on choisit aléatoirement une base parmi A, T, C, G.
-        if nom not in ["A", "T", "C", "G"]:
-            print("Caractère entré invalide...\nChoix aléatoire de caractère")
-            self._nom = random.choice(["A", "T", "C", "G"])
-            print(f"Nouveau nucléotide : {self._nom}")
-        else:
-            self._nom = nom
-        
         # Dictionnaire pour déterminer le type de la base (purine ou pyrimidine).
         types = {'A': 'purine', 'G': 'purine', 'T': 'pyrimidine', 'C': 'pyrimidine'}
         self._type = types.get(self._nom, None)

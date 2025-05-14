@@ -35,7 +35,8 @@ class MoleculeADN:
                     raise ValueError("Le nombre de ponts ADN doit être supérieur à 0.")
                 self.nb = nb
                 # Création d'une liste de ponts.
-                self.brin = [PontADN() for _ in range(nb)]
+                choix = int(input("vous désirez un choix aléatoire de la base(1) ou pas(2) ? [1/2]"))
+                self.brin = [PontADN(choix=choix) for _ in range(nb)]
                 break
             except ValueError as e:
                 print(e)

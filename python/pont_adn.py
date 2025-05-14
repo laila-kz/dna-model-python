@@ -12,28 +12,35 @@ class PontADN:
     classes spécialisées. La conversion de l'entrée en majuscule est effectuée.
     """
 
-    def __init__(self, symbol=None):
+    def __init__(self, symbol=None, choix=1):
         # Vérifier que le paramètre 'symbol' est un caractère.
-        while True:
-            try:
-                if not isinstance(symbol, str):
-                    raise ValueError("Le nucléotide doit être fourni en tant que chaîne (par exemple 'A', 'T', 'C' ou 'G').")
-                break
-            except ValueError as e:
-                symbol=int(input("Veuillez entrer le symbole d'une base azotée: "))
-
-        # Conversion en majuscules.
-        symbol = symbol.upper()
+                match choix :
+                    case 1:
+                        symbol = random.choice(["A", "T", "C", "G"])
+                    case 2:
+                        while True:
+                            try:
+                                if not symbol:
+                                    raise ValueError("Un nucléotide doit être fourni (par exemple 'A', 'T', 'C' ou 'G').")
+                                # Conversion en majuscules.
+                                symbol = symbol.upper()
+                                # Si le symbole n'est pas valide, on en choisit un aléatoirement.
+                                if symbol not in ["A", "T", "C", "G"]:
+                                    print("Caractère entré invalide...\nChoix aléatoire de caractère")
+                                    symbol = random.choice(["A", "T", "C", "G"])
+                                break
+                            except ValueError as e:
+                                print(e)
+                                symbol = str(input("Veuillez entrer le symbole du nucléotide: ")).strip()
+                                continue
+                            
+                # Création des instances de base selon le mapping.
+                nucleotide_map = {"A": A, "T": T, "C": C, "G": G}
+                self._baseGauche = nucleotide_map[symbol]()  # Base gauche
+                self._baseDroite = nucleotide_map[complements.get(symbol, "A")]()  # Base droite complémentaire
         
-        # Si le symbole n'est pas valide, on en choisit un aléatoirement.
-        if symbol not in ["A", "T", "C", "G"]:
-            print("Caractère entré invalide...\nChoix aléatoire de caractère")
-            symbol = random.choice(["A", "T", "C", "G"])
         
-        # Création des instances de base selon le mapping.
-        nucleotide_map = {"A": A, "T": T, "C": C, "G": G}
-        self._baseGauche = nucleotide_map[symbol]()  # Base gauche
-        self._baseDroite = nucleotide_map[complements.get(symbol, "A")]()  # Base droite complémentaire
+       
 
     def symbol(self):
         """

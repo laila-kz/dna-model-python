@@ -1,26 +1,7 @@
-import typer # type: ignore
-#On importe la bibliothèque qui aide à organiser et 
-# lancer les commandes dans le programme.
-
-from rich import print # type: ignore
-# On importe une version améliorée de la fonction print 
-# qui permet d’afficher du texte coloré ou formaté facilement.
-
 from python.molecule_adn import MoleculeADN
 # On importe la classe permettant de gérer la molécule d’ADN. 
 # Cette classe est définie dans un autre fichier du projet.
 
-app = typer.Typer()
-# On crée un objet qui va regrouper toutes les fonctions (commandes) de l’application. 
-# Cela organise le code pour lancer la bonne action quand l’utilisateur choisit une commande.
-
-"""
-@app.command
-Ce décorateur indique que la fonction qui suit (run) 
-sera enregistrée comme une commande dans notre objet app.
-"""
-
-@app.command()
 def run():
     """
     Lance l'application et affiche l'exemple d'utilisation de la molécule d'ADN.
@@ -53,4 +34,4 @@ def run():
     print(f"Facteur d'optimisation: {factor:.2f} (objectif: 1/8 ou mieux)")
 
 if __name__ == "__main__":
-    app()
+    run()

@@ -28,7 +28,7 @@ print("Test 1.2 REUSSI\n\n\n\n----\n\n"); time.sleep(5)
 #  2   TEST POUR LES PONTS
 ## 2.1 PONT à base BIEN DEFINIE
 from python.pont_adn import PontADN
-
+"""
 print("\n\n---TEST AVEC UN PONT BIEN DEFINI---\n")
 A = PontADN("A", 2)
 print("NUCLEOTIDE du pont BIEN DEFINI par l'utilisateur: A"); time.sleep(3)
@@ -47,8 +47,7 @@ print(f"La base droite du pont est: {B.symbol_droite()}"); time.sleep(3)
 print(f"La représentation complète du pont est: {B.toString()}"); time.sleep(3)
 print(f"Le nombre de liaisons hydrogène est: {B.nbHydrogen()}"); time.sleep(3)
 print("Test 2.2 REUSSI\n\n\n\n----\n\n"); time.sleep(5)
-
-
+"""
 
 
 ############################################################################
@@ -83,4 +82,3 @@ list_pont = molecule.getFragment(position, longueur); time.sleep(3)
 ## 3.1.5 Affichage du taux de fusion correspondant à une séquence ADN
 print(f"Calcul du taux de fusion correspondant un fragment...\n")
 print(f"Le taux de fusion correspondant à la séquence ADN est: {molecule.fusionRate()}"); time.sleep(3)
-"""

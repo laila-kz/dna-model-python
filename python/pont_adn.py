@@ -18,7 +18,8 @@ class PontADN:
         # fonction appelée lors de la création des ponts.
         def creation(self, symbol):
             nucleotide_map = {"A": A, "T": T, "C": C, "G": G}
-            self._baseGauche = nucleotide_map[symbol]()  # Base gauche
+            self._baseGauche = nucleotide_map[symbol if symbol is not None else random.choice["A","T","C","G"]]()  # Base gauche
+            symbol = self._baseGauche
             self._baseDroite = nucleotide_map[complements.get(symbol, None)]()
         
         attempt=1

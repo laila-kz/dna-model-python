@@ -87,13 +87,13 @@ class MoleculeADN:
                     raise ValueError("ERREUR! Le caractère doit être soit A, T, C, ou G.")
                 
                 # Affichage préliminaire de la liaison recherchée.
-                print(f"Recherche de la première occurrence de la liaison {PontADN(cara).toString()}...")
+                print(f"Recherche de la première occurrence de la liaison {PontADN(cara, 2).toString()}...")
                 pos = 0
                 for elm in self.brin:
                     if elm._baseGauche.symbol() == cara:
-                        return f"Liaison {PontADN(cara).toString()} trouvée à la position {pos+1}"
+                        return f"Liaison {PontADN(cara, 2).toString()} trouvée à la position {pos+1}"
                     pos += 1
-                return f"Liaison {PontADN(cara).toString()} non trouvée !"
+                return f"Liaison {PontADN(cara, 2).toString()} non trouvée !"
             
             except ValueError as e:
                 print(e)

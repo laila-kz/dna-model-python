@@ -1,6 +1,7 @@
 import time
 import random
 from .nucleotide import A, T, C, G, complements, Nucleotide
+nucleotide_map = {"A": A, "T": T, "C": C, "G": G}
 
 # =============================================================================
 # Classe PontADN
@@ -15,39 +16,43 @@ class PontADN:
 
     def __init__(self, symbol=None, choix=None):
         
-        # fonction appelée lors de la création des ponts.
-        def creation(self, symbol):
-            nucleotide_map = {"A": A, "T": T, "C": C, "G": G}
-            self._baseGauche = nucleotide_map[symbol if symbol is not None else random.choice["A","T","C","G"]]()  # Base gauche
-            symbol = self._baseGauche
-            self._baseDroite = nucleotide_map[complements.get(symbol, None)]()
-        
         attempt=1
         if choix==None :
-            while True:    
-                try:
-                    choix = int(input("Comment désirez-vous créer votre pont ?\n[1] De façon aleatoire\n[2] Avec un symbole azoté bien défini\n==>Votre choix: "))
-                except ValueError:
-                    print("\nERREUR DE SAISIE ! Veuillez entrer un nombre entier.")
-                    choix = None
-                attempt+=1
-                if (choix not in [1, 2] and attempt<4) :
-                    print(f"\nIl vous reste {3-attempt} tentatives"); time.sleep(2)
-                if (choix in [1, 2]) :
-                    break
-                if (attempt >= 4) :
-                    print("\nEXCES DE TENTATIVES OU VALEUR INCORRECTE ! Choix aléatoire..."); time.sleep(2)
-                    choix=1
-                    break
+            if __name__ == "PontADN":
+                while True:    
+                    try:
+                        choix = int(input("Comment désirez-vous créer votre pont ?\n[1] De façon aleatoire\n[2] Avec un symbole azoté bien défini\n==>Votre choix: "))
+                    except ValueError:
+                        print("\nERREUR DE SAISIE ! Veuillez entrer un nombre entier.")
+                        choix = None
+                    attempt+=1
+                    if (choix not in [1, 2] and attempt<4) :
+                        print(f"\nIl vous reste {3-attempt} tentatives"); time.sleep(2)
+                    if (choix in [1, 2]) :
+                        break
+                    if (attempt >= 4) :
+                        print("\nEXCES DE TENTATIVES OU VALEUR INCORRECTE ! Choix aléatoire..."); time.sleep(2)
+                        choix=1
+                        break
+            else :
+                pass
 
         if (choix==1):
             symbol = random.choice(["A", "T", "C", "G"])
-            creation(self,symbol=symbol)
+            self.creation(symbol=symbol)
         elif (choix==2):
             if (symbol is None) :
-                symbol=Nucleotide().symbol()
-            creation(self,symbol=symbol)
+                symbol=random.choice(["A", "T", "C", "G"])
+            self._baseGauche = nucleotide_map[symbol]
+            symbol_complement = Nucleotide(complements[symbol]).symbol()
+            self._baseDroite = nucleotide_map(symbol_complement)
                 
+    # fonction appelée lors de la création des ponts.
+    def creation(self, symbol):
+        self._baseGauche = nucleotide_map[symbol if symbol is not None else random.choice["A","T","C","G"]]()  # Base gauche
+        symbol = self._baseGauche
+        self._baseDroite = nucleotide_map[complements.get(self._baseGauche.symbol(), None)]()
+        
     
     def symbol_droite(self):
         """

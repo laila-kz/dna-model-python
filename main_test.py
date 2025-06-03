@@ -62,23 +62,23 @@ molecule = MoleculeADN(5)
 print("MOLECULE ADN BIEN DEFINIE par l'utilisateur"); time.sleep(3)
 
 ## 3.1.1 Affichage de la séquence ADN
-print(f"La représentation complète de la molécule ADN est: {molecule.toString()}"); time.sleep(3)
+print(f"La représentation complète de la molécule ADN est: {molecule.getFragment()}"); time.sleep(3)
 
 ## 3.1.2 Affichage de la première occurrence d'un pont
 print("Affichage de la première occurrence d'un pont dans la molécule ADN..."); time.sleep(3)
 exemple_pont = str(input("Entrez un pont X-Y dans la molécule ADN: "))
-print(f"La première occurence de {exemple_pont} dans l'ADN est: {molecule.firstOccurence(exemple_pont)}"); time.sleep(3)
+molecule.firstOccurence(exemple_pont); time.sleep(3)
 
-## 3.1.3 Affichage d'un fragment
-# Note: On demande la position et la longueur qui sont ensuite vérifiées à lintérieur de la méthode
-position = int(input("Entrer la position du fragment à afficher: "))
-longueur = int(input("Entrer la longueur du fragment à afficher: "))
-print(f"La partie du fragment correspondant à la position {position} et de longueur {longueur} est: {molecule.displayFragment(position, longueur)}"); time.sleep(3)
+# ## 3.1.3 Affichage d'un fragment
+# # Note: On demande la position et la longueur qui sont ensuite vérifiées à lintérieur de la méthode
+# position = int(input("Entrer la position du fragment à afficher: "))
+# longueur = int(input("Entrer la longueur du fragment à afficher: "))
+# print(f"La partie du fragment correspondant à la position {position} et de longueur {longueur} est: {molecule.displayFragment(position, longueur)}"); time.sleep(3)
 
-## 3.1.4 Extraction de la séquence ADN
-print("Extraction de la séquence ADN correspondant à la position {position} et de longueur {longueur}...\n")
-list_pont = molecule.getFragment(position, longueur); time.sleep(3)
+# ## 3.1.4 Extraction de la séquence ADN
+# print("Extraction de la séquence ADN correspondant à la position {position} et de longueur {longueur}...\n")
+# list_pont = molecule.getFragment(position, longueur); time.sleep(3)
 
-## 3.1.5 Affichage du taux de fusion correspondant à une séquence ADN
-print(f"Calcul du taux de fusion correspondant un fragment...\n")
-print(f"Le taux de fusion correspondant à la séquence ADN est: {molecule.fusionRate()}"); time.sleep(3)
+# ## 3.1.5 Affichage du taux de fusion correspondant à une séquence ADN
+# print(f"Calcul du taux de fusion correspondant un fragment...\n")
+# print(f"Le taux de fusion correspondant à la séquence ADN est: {molecule.fusionRate()}"); time.sleep(3)

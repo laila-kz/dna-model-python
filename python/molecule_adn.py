@@ -35,7 +35,7 @@ class MoleculeADN:
                     raise ValueError("Le nombre de ponts ADN doit être supérieur à 0.")
                 self.nb = nb
                 # Création d'une liste de ponts.
-                choix = int(input("vous désirez un choix aléatoire de la base(1) ou pas(2) ? [1/2]"))
+                choix = int(input("vous désirez un choix aléatoire(1) de la base ou pas(2) ? [1/2]\n==>"))
                 self.brin = [PontADN(choix=choix) for _ in range(nb)]
                 break
             except ValueError as e:
@@ -79,7 +79,7 @@ class MoleculeADN:
             try:
                 # Vérification du type d'entrée.
                 if not isinstance(cara, str):
-                    raise ValueError("Le paramètre doit être une chaîne de caractères.")
+                    raise ValueError("ERREUR! Le paramètre doit être une chaîne de caractères.")
                 
                 # Conversion en majuscules pour traitement uniforme.
                 cara = cara.upper()
@@ -87,47 +87,53 @@ class MoleculeADN:
                     raise ValueError("ERREUR! Le caractère doit être soit A, T, C, ou G.")
                 
                 # Affichage préliminaire de la liaison recherchée.
-                print(f"Recherche de la première occurrence de la liaison {PontADN(cara, 2).toString()}...")
+                chn = PontADN(cara, 2).toString()
+                print(f"Recherche de la première occurrence de la liaison {chn}...")
                 pos = 0
                 for elm in self.brin:
                     if elm._baseGauche.symbol() == cara:
-                        return f"Liaison {PontADN(cara, 2).toString()} trouvée à la position {pos+1}"
+                        print (f"***Liaison {chn} trouvée à la position {pos+1}")
+                        return
                     pos += 1
-                return f"Liaison {PontADN(cara, 2).toString()} non trouvée !"
+                print (f"***Liaison {chn} non trouvée !")
+                return
             
             except ValueError as e:
                 print(e)
                 cara = input("Veuillez entrer un caractère valide (A, T, C, G): ")
 
+    
     def displayFragment(self, pos=-1, leng=-1):
-        """
-        Affiche graphiquement un fragment de la molécule.
-        L'affichage utilise des symboles pour représenter visuellement les ponts.
-        """
-        while True:
-            try:
-                if pos < 1 or leng <= 0:
-                    raise ValueError(
-                        "\n\nLa position doit être supérieure à 0 et la longueur positive."
-                    )
-                
-                # Dictionnaire pour choisir le type de liaison visuelle (p.ex. '=' ou '≡')
-                egal = {"A": "=", "T": "=", "C": "≡", "G": "≡"}
-                pos -= 1  # Conversion en index 0-based
-                for i in range(pos, min(pos + leng, len(self.brin))):
-                    # Récupération de la base gauche pour l'affichage.
-                    base = self.brin[i]._baseGauche.symbol()
+            """
+            Affiche graphiquement un fragment de la molécule.
+            L'affichage utilise des symboles pour représenter visuellement les ponts.
+            """
+            
+            while True:
+                try:
+                    if pos < 1 or leng <= 0:
+                        raise ValueError(
+                            "\n\nLa position doit être supérieure à 0 et la longueur positive."
+                        )
+                    
+                    # Dictionnaire pour choisir le type de liaison visuelle (p.ex. '=' ou '≡')
+                    egal = {"A": "=", "T": "=", "C": "≡", "G": "≡"}
+                    pos -= 1  # Conversion en index 0-based
+                    for i in range(pos, min(pos + leng, len(self.brin))):
+                        # Récupération de la base gauche pour l'affichage.
+                        base = self.brin[i]._baseGauche.symbol()
+                        print("P       P")
+                        print(" \\     /")
+                        # Affiche le pont avec le symbole et le mot de liaison correspondant.
+                        print(f"  D{base}{egal[base]}{complements.get(base, '?')}D")
+                        print(" /     \\")
                     print("P       P")
-                    print(" \\     /")
-                    # Affiche le pont avec le symbole et le mot de liaison correspondant.
-                    print(f"  D{base}{egal[base]}{complements.get(base, '?')}D")
-                    print(" /     \\")
-                print("P       P")
-                break
-            except ValueError as e:
-                print(e)
-                pos = int(input("Veuillez entrer la position (>0): "))
-                leng = int(input("Veuillez entrer la longueur (>=0): "))
+                    break
+                except ValueError as e:
+                    print(e)
+                    pos = int(input("Veuillez entrer la position (>0): "))
+                    leng = int(input("Veuillez entrer la longueur (>=0): "))
+
 
     def fusionRate(self, pos=1, leng=10):
         """
@@ -184,16 +190,19 @@ class MoleculeADN:
                 # Si la chaîne a exactement la longueur du brin, on compare l'ensemble de la molécule.
                 if len(chn) == self.nb:
                     if brinChn == chn or complement_brinChn == chn:
-                        return "Il s'agit de la molécule entière !"
+                        print("***Il s'agit de la molécule entière !")
+                        break
                     else:
-                        return "La chaîne ne correspond pas à la molécule entière."
-                
+                        print( "***La chaîne ne correspond pas à la molécule entière.")      
+                        break          
                 # Recherche du motif dans le brin principal ou dans son complément.
                 for i in range(self.nb - len(chn) + 1):
                     if brinChn[i:i+len(chn)] == chn or complement_brinChn[i:i+len(chn)] == chn:
-                        return f"Motif trouvé à la position {i + 1}"
-                
-                return "Motif non trouvé."
+                        print(f"***Motif trouvé à la position {i + 1}")
+                        break
+                    else :
+                        print("***Motif non trouvé.")
+                        break
             
             except ValueError as e:
                 print(e)
@@ -243,6 +252,7 @@ class MoleculeADN:
         La méthode lit chaque caractère de la chaîne bits_string et l'ajoute comme un bit dans le tableau ba.
         Si bits_string = "1101", alors après cette opération, ba contiendra les bits [1, 1, 0, 1].        
         """
+        print(f"- Représentation compacte de la chaine en écriture bitarray : {ba}")
         return ba
 
     def rawSize(self):
@@ -258,6 +268,7 @@ class MoleculeADN:
             total += sys.getsizeof(pont)
             total += sys.getsizeof(pont._baseGauche)
             total += sys.getsizeof(pont._baseDroite)
+        print(f"- Taille approximative en mémoire de la molécule: {total} octets")
         return total
 
     def optimizedSize(self):
@@ -265,7 +276,9 @@ class MoleculeADN:
         Renvoie la taille en mémoire de la représentation compacte obtenue grâce à bitarray.
         """
         compact = self.compactRepresentation()
-        return sys.getsizeof(compact)
+        total =sys.getsizeof(compact)
+        print(f"- Taille approximative en mémoire de représentation compacte: {total} octets")
+        return total
 
     def optimizationFactor(self):
         """
@@ -280,4 +293,25 @@ class MoleculeADN:
             factor = raw / compact
         except ZeroDivisionError:
             raise ValueError("La taille optimisée est nulle, vérification impossible.")
-        return factor
+        return round(factor, 3)
+
+def displayFragment(liste=None):
+        """
+        Affiche graphiquement un fragment récupéré de la molécule.
+        L'affichage utilise des symboles pour représenter visuellement les ponts.
+        """        
+        # Dictionnaire pour choisir le type de liaison visuelle (p.ex. '=' ou '≡')
+        egal = {"A": "=", "T": "=", "C": "≡", "G": "≡"}
+        indice = 0
+        for _ in range(len(liste)):
+            # Récupération de la base gauche pour l'affichage.
+            base = liste[indice]
+            print("P       P")
+            print(" \\     /")
+            # Affiche le pont avec le symbole et le mot de liaison correspondant.
+            print(f"  D{base}{egal[base]}{complements.get(base, '?')}D")
+            print(" /     \\")
+            #compare si l'on est arrivé à la fin de la liste
+            indice+=4
+            if indice >= len(liste): break
+        print("P       P")

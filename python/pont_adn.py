@@ -37,22 +37,21 @@ class PontADN:
             else :
                 pass
 
+        if choix == None:
+            choix =1
         if (choix==1):
             symbol = random.choice(["A", "T", "C", "G"])
             self.creation(symbol=symbol)
         elif (choix==2):
             if (symbol is None) :
                 symbol=random.choice(["A", "T", "C", "G"])
-            self._baseGauche = nucleotide_map[symbol]
-            symbol_complement = Nucleotide(complements[symbol]).symbol()
-            self._baseDroite = nucleotide_map(symbol_complement)
+            self.creation(symbol=symbol)
                 
     # fonction appelée lors de la création des ponts.
     def creation(self, symbol):
         self._baseGauche = nucleotide_map[symbol if symbol is not None else random.choice["A","T","C","G"]]()  # Base gauche
-        symbol = self._baseGauche
         self._baseDroite = nucleotide_map[complements.get(self._baseGauche.symbol(), None)]()
-        
+
     
     def symbol_droite(self):
         """

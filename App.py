@@ -1,29 +1,38 @@
-#!/usr/bin/env python
-import time
-import sys
+#!/usr/bin/env python3
+"""Interactive console application for the DNA modeling project."""
 
+from __future__ import annotations
+
+from typing import Optional
+
+from python.molecule_adn import MoleculeADN
 from python.nucleotide import Nucleotide
 from python.pont_adn import PontADN
-from python.molecule_adn import MoleculeADN, displayFragment
 
 
 class App:
-    def __init__(self):
-        self.molecule = None
+    """Small console interface used to demonstrate the DNA classes."""
 
-    def wait(self, seconds=2):
-        """Simulation d'un délai pour rendre l'expérience interactive."""
+    def __init__(self) -> None:
+        self.molecule: Optional[MoleculeADN] = None
+
+    def _pause(self, seconds: float = 0.3) -> None:
+        """Pause briefly to keep the console output readable."""
+        import time
+
         time.sleep(seconds)
 
-    def run(self):
-        """Boucle principale de l'application."""
+    def run(self) -> None:
+        """Run the main application loop."""
         while True:
-            print("\n===== Menu Principal =====")
-            print("1. Tester les Nucléotides")
-            print("2. Tester les Ponts d'ADN")
-            print("3. Tester la Molécule d'ADN")
-            print("4. Quitter l'application")
-            choice = input("Choisissez une option (1-4): ").strip()
+            print("\n=== DNA Model Menu ===")
+            print("1. Test nucleotide")
+            print("2. Test DNA bridge")
+            print("3. Test DNA molecule")
+            print("4. Exit")
+
+            choice = input("Select an option (1-4): ").strip()
+
             if choice == "1":
                 self.menu_nucleotides()
             elif choice == "2":
@@ -31,186 +40,112 @@ class App:
             elif choice == "3":
                 self.menu_molecule_adn()
             elif choice == "4":
-                print("Au revoir !")
+                print("Goodbye!")
                 break
             else:
-                print("Option invalide. Veuillez réessayer.")
-            self.wait()
+                print("Invalid option. Please try again.")
 
-    # ---------------------------------------------------------------------------
-    # Menu pour les tests de Nucléotides
-    # ---------------------------------------------------------------------------
-    def menu_nucleotides(self):
+            self._pause()
+
+    def menu_nucleotides(self) -> None:
+        """Menu for nucleotide demonstrations."""
         while True:
-            print("\n--- Menu Nucléotides ---")
-            print("1. Test de Nucleotide avec base bien définie ('A')")
-            print("2. Test de Nucleotide avec base inconnue (saisie interactive)")
-            print("3. Retour au menu principal")
-            choice = input("Choisissez une option (1-3): ").strip()
+            print("\n--- Nucleotide Menu ---")
+            print("1. Create a nucleotide with an explicit base")
+            print("2. Create a random nucleotide")
+            print("3. Back")
+
+            choice = input("Select an option (1-3): ").strip()
             if choice == "1":
-                self.test_nucleotide_defined()
+                base = input("Enter a base (A, T, C, G): ").strip().upper()
+                nucleotide = Nucleotide(base)
+                print(f"Symbol: {nucleotide.symbol()}")
+                print(f"Complement: {nucleotide.complement()}")
+                print(f"Display: {nucleotide.to_string()}")
             elif choice == "2":
-                self.test_nucleotide_unknown()
+                nucleotide = Nucleotide()
+                print(f"Random symbol: {nucleotide.symbol()}")
+                print(f"Complement: {nucleotide.complement()}")
             elif choice == "3":
-                break
+                return
             else:
-                print("Option invalide. Veuillez réessayer.")
-            self.wait()
+                print("Invalid option. Please try again.")
 
-    def test_nucleotide_defined(self):
-        print("\nCréation d'un nucléotide avec la base 'A'...")
-        nuc = Nucleotide("A")
-        self.wait(2)
-        print(f"La base définie est : {nuc.symbol()}")
-        self.wait(2)
-        print(f"La base complémentaire est : {nuc.getComplementaire()}")
-        self.wait(2)
-        print(f"Représentation complète : {nuc.toString()}")
-
-    def test_nucleotide_unknown(self):
-        print("\nCréation d'un nucléotide sans paramètre (choix interactif ou aléatoire)...")
-        nuc = Nucleotide()
-        self.wait(2)
-        print(f"La base obtenue est : {nuc.symbol()}")
-        self.wait(2)
-        print(f"La base complémentaire est : {nuc.getComplementaire()}")
-        self.wait(2)
-        print(f"Représentation complète : {nuc.toString()}")
-
-    # ---------------------------------------------------------------------------
-    # Menu pour les tests de PontADN
-    # ---------------------------------------------------------------------------
-    def menu_pont_adn(self):
+    def menu_pont_adn(self) -> None:
+        """Menu for DNA-bridge demonstrations."""
         while True:
-            print("\n--- Menu Pont d'ADN ---")
-            print("1. Test avec un pont bien défini (base 'A')")
-            print("2. Test avec un pont inconnu (choix aléatoire)")
-            print("3. Retour au menu principal")
-            choice = input("Choisissez une option (1-3): ").strip()
+            print("\n--- DNA Bridge Menu ---")
+            print("1. Build a bridge for a specific base")
+            print("2. Build a random bridge")
+            print("3. Back")
+
+            choice = input("Select an option (1-3): ").strip()
             if choice == "1":
-                self.test_pont_defined()
+                base = input("Enter a base (A, T, C, G): ").strip().upper()
+                bridge = PontADN(base)
+                print(f"Left base: {bridge.symbol_gauche()}")
+                print(f"Right base: {bridge.symbol_droite()}")
+                print(f"Bridge: {bridge.to_string()}")
+                print(f"Hydrogen bonds: {bridge.nb_hydrogen()}")
             elif choice == "2":
-                self.test_pont_unknown()
+                bridge = PontADN()
+                print(f"Bridge: {bridge.to_string()}")
+                print(f"Hydrogen bonds: {bridge.nb_hydrogen()}")
             elif choice == "3":
-                break
+                return
             else:
-                print("Option invalide. Veuillez réessayer.")
-            self.wait()
+                print("Invalid option. Please try again.")
 
-    def test_pont_defined(self):
-        print("\nCréation d'un pont d'ADN avec la base 'A' (option 2 pour base définie)...")
-        pont = PontADN("A", 2)
-        self.wait(2)
-        print(f"Base gauche : {pont.symbol_gauche()}")
-        self.wait(2)
-        print(f"Base droite : {pont.symbol_droite()}")
-        self.wait(2)
-        print(f"Représentation du pont : {pont.toString()}")
-        self.wait(2)
-        print(f"Nombre de liaisons hydrogène : {pont.nbHydrogen()}")
-
-    def test_pont_unknown(self):
-        print("\nCréation d'un pont d'ADN sans paramètre (choix aléatoire)...")
-        pont = PontADN()
-        self.wait(2)
-        print(f"Base gauche : {pont.symbol_gauche()}")
-        self.wait(2)
-        print(f"Base droite : {pont.symbol_droite()}")
-        self.wait(2)
-        print(f"Représentation du pont : {pont.toString()}")
-        self.wait(2)
-        print(f"Nombre de liaisons hydrogène : {pont.nbHydrogen()}")
-
-    # ---------------------------------------------------------------------------
-    # Menu pour les tests de MoleculeADN
-    # ---------------------------------------------------------------------------
-    def menu_molecule_adn(self):
-        # Création d'une nouvelle molécule d'ADN
+    def menu_molecule_adn(self) -> None:
+        """Menu for DNA molecule demonstrations."""
         while True:
             try:
-                nb = int(input("\nEntrez le nombre de ponts pour la molécule d'ADN: "))
-                if nb <= 0:
-                    print("Le nombre de ponts doit être supérieur à 0.")
-                    continue
+                length = int(input("\nEnter the number of bridges to generate: ").strip())
+                if length <= 0:
+                    raise ValueError
                 break
             except ValueError:
-                print("Veuillez entrer un nombre entier valide.")
-        print("\nCréation de la molécule d'ADN...")
-        self.molecule = MoleculeADN(nb)
-        self.wait(2)
+                print("Please enter a positive integer.")
 
-        # Sous-menu pour les fonctionnalités de la molécule d'ADN
+        self.molecule = MoleculeADN(length)
+        print(f"Generated molecule with {len(self.molecule)} bridges.")
+
         while True:
-            print("\n--- Menu Molécule d'ADN ---")
-            print("1. Afficher la représentation complète de la molécule")
-            print("2. Rechercher la première occurrence d'un pont par base (base gauche)")
-            print("3. Extraire et afficher un fragment de la molécule")
-            print("4. Rechercher un motif dans la molécule")
-            print("5. Calculer le taux de fusion d'un fragment")
-            print("6. Afficher le facteur d'optimisation mémoire")
-            print("7. Retour au menu principal")
-            choice = input("Choisissez une option (1-7): ").strip()
+            print("\n--- DNA Molecule Menu ---")
+            print("1. Display molecule")
+            print("2. Search first occurrence by left base")
+            print("3. Display fragment")
+            print("4. Search a pattern")
+            print("5. Compute fusion rate")
+            print("6. Display optimization factor")
+            print("7. Back")
+
+            choice = input("Select an option (1-7): ").strip()
             if choice == "1":
-                self.display_full_molecule()
+                print(self.molecule.to_string())
             elif choice == "2":
-                self.search_first_occurrence()
+                left_base = input("Base to look for (A, T, C, G): ").strip().upper()
+                print(self.molecule.first_occurrence(left_base))
             elif choice == "3":
-                self.extract_and_display_fragment()
+                pos = int(input("Starting index (1-based): ").strip())
+                length = int(input("Length: ").strip())
+                print(self.molecule.get_fragment(pos, length))
             elif choice == "4":
-                self.search_pattern()
+                pattern = input("Pattern to search: ").strip().upper()
+                print(self.molecule.search_pattern(pattern))
             elif choice == "5":
-                self.calculate_fusion_rate()
+                pos = int(input("Starting index (1-based): ").strip())
+                length = int(input("Length: ").strip())
+                print(f"Fusion rate: {self.molecule.fusion_rate(pos, length)}")
             elif choice == "6":
-                self.display_optimization_factor()
+                print(f"Optimization factor: {self.molecule.optimization_factor()}")
             elif choice == "7":
-                break
+                return
             else:
-                print("Option invalide. Veuillez réessayer.")
-            self.wait()
-
-    def display_full_molecule(self):
-        print("\nReprésentation complète de la molécule d'ADN:")
-        fragment = self.molecule.getFragment()
-        print(fragment)
-
-    def search_first_occurrence(self):
-        char = input("\nEntrez le caractère (A, T, C, G) pour rechercher la première occurrence d'un pont: ").strip()
-        self.molecule.firstOccurence(char)
-
-    def extract_and_display_fragment(self):
-        try:
-            pos = int(input("\nEntrez la position du début du fragment à extraire (>= 1): "))
-            leng = int(input("Entrez la longueur du fragment à extraire: "))
-        except ValueError:
-            print("Entrée invalide. Veuillez entrer des valeurs numériques.")
-            return
-        fragment = self.molecule.getFragment(pos, leng)
-        print("\nFragment extrait:")
-        print(fragment)
-        choice = input("\nSouhaitez-vous l'afficher graphiquement ? (1. Oui / 2. Non): ").strip()
-        if choice == "1":
-            displayFragment(liste=fragment)
-
-    def search_pattern(self):
-        pattern = input("\nEntrez le motif à rechercher (ex: 'aTa', 'Tgc', etc.): ").strip()
-        self.molecule.searchPattern(pattern)
-
-    def calculate_fusion_rate(self):
-        try:
-            pos = int(input("\nEntrez la position de départ pour le calcul du taux de fusion (>= 1): "))
-            leng = int(input("Entrez la longueur du fragment: "))
-        except ValueError:
-            print("Entrée invalide. Veuillez entrer des valeurs numériques.")
-            return
-        rate = self.molecule.fusionRate(pos, leng)
-        print(f"\nLe taux de fusion pour le fragment est : {rate}")
-
-    def display_optimization_factor(self):
-        print("\nCalcul du facteur d'optimisation mémoire...")
-        factor = self.molecule.optimizationFactor()
-        print(f"Le facteur d'optimisation est de : {factor}")
+                print("Invalid option. Please try again.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = App()
     app.run()
+

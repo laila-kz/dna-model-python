@@ -1,88 +1,73 @@
-import time
+"""DNA bridge representation."""
+
+from __future__ import annotations
+
 import random
-from .nucleotide import A, T, C, G, complements, Nucleotide
-nucleotide_map = {"A": A, "T": T, "C": C, "G": G}
+from typing import Final
 
-# =============================================================================
-# Classe PontADN
-# =============================================================================
+try:
+    from .nucleotide import A, C, G, T, COMPLEMENTS, Nucleotide
+except ImportError:  # pragma: no cover - support direct script execution
+    from python.nucleotide import A, C, G, T, COMPLEMENTS, Nucleotide
+
+NUCLEOTIDE_MAP: Final[dict[str, type[Nucleotide]]] = {"A": A, "T": T, "C": C, "G": G}
+
+
 class PontADN:
-    """
-    Représente une paire de bases complémentaires (un pont d'ADN).
-    On construit la paire à partir d'une base fournie. La base gauche et
-    sa complémentaire (base droite) sont instanciées via le mapping vers les
-    classes spécialisées. La conversion de l'entrée en majuscule est effectuée.
-    """
+    """Represent a complementary DNA base pair, also called a bridge."""
 
-    def __init__(self, symbol=None, choix=None):
-        
-        attempt=1
-        if choix==None :
-            if __name__ == "PontADN":
-                while True:    
-                    try:
-                        choix = int(input("Comment désirez-vous créer votre pont ?\n[1] De façon aleatoire\n[2] Avec un symbole azoté bien défini\n==>Votre choix: "))
-                    except ValueError:
-                        print("\nERREUR DE SAISIE ! Veuillez entrer un nombre entier.")
-                        choix = None
-                    attempt+=1
-                    if (choix not in [1, 2] and attempt<4) :
-                        print(f"\nIl vous reste {3-attempt} tentatives"); time.sleep(2)
-                    if (choix in [1, 2]) :
-                        break
-                    if (attempt >= 4) :
-                        print("\nEXCES DE TENTATIVES OU VALEUR INCORRECTE ! Choix aléatoire..."); time.sleep(2)
-                        choix=1
-                        break
-            else :
-                pass
+    __slots__ = ("_base_gauche", "_base_droite")
 
-        if choix == None:
-            choix =1
-        if (choix==1):
-            symbol = random.choice(["A", "T", "C", "G"])
-            self.creation(symbol=symbol)
-        elif (choix==2):
-            if (symbol is None) :
-                symbol=random.choice(["A", "T", "C", "G"])
-            self.creation(symbol=symbol)
-                
-    # fonction appelée lors de la création des ponts.
-    def creation(self, symbol):
-        self._baseGauche = nucleotide_map[symbol if symbol is not None else random.choice["A","T","C","G"]]()  # Base gauche
-        self._baseDroite = nucleotide_map[complements.get(self._baseGauche.symbol(), None)]()
+    def __init__(self, symbol: str | None = None, choice: int | None = None, *, rng: random.Random | None = None) -> None:
+        """Create a DNA bridge.
 
-    
-    def symbol_droite(self):
+        Args:
+            symbol: base on the left side of the bridge.
+            choice: retained for backward compatibility; 1 means random, 2 means explicit.
+            rng: optional random generator for deterministic behavior.
         """
-        Retourne le symbole de la base gauche.
-        """
-        return self._baseDroite.symbol()
+        if choice is not None and choice not in (1, 2):
+            raise ValueError("Choice must be 1 or 2 when provided.")
 
+        generator = rng or random
+        if symbol is None:
+            symbol = generator.choice(tuple(COMPLEMENTS.keys()))
 
-    def symbol_gauche(self):
-        """
-        Retourne le symbole de la base gauche.
-        """
-        return self._baseGauche.symbol()
-    
-    
-    def toString(self):
-        """
-        Renvoie la représentation sous forme "A-T", "C-G", etc.
-        """
-        return f"{self._baseGauche.symbol()}-{self._baseDroite.symbol()}"
+        normalized = str(symbol).strip().upper()
+        if normalized not in COMPLEMENTS:
+            raise ValueError("A bridge must use one of: A, T, C, G.")
 
+        self._base_gauche = NUCLEOTIDE_MAP[normalized]()
+        self._base_droite = NUCLEOTIDE_MAP[COMPLEMENTS[normalized]]()
 
-    def nbHydrogen(self):
-        """
-        Retourne le nombre de liaisons hydrogène en fonction de la base gauche.
-            - 2 liaisons pour A et T.
-            - 3 liaisons pour C et G.
-        """
-        if self._baseGauche.symbol() in ["A", "T"]:
+    def symbol_gauche(self) -> str:
+        """Return the left-side base symbol."""
+        return self._base_gauche.symbol()
+
+    def symbol_droite(self) -> str:
+        """Return the right-side complementary base symbol."""
+        return self._base_droite.symbol()
+
+    def to_string(self) -> str:
+        """Return a readable representation like A-T."""
+        return f"{self._base_gauche.symbol()}-{self._base_droite.symbol()}"
+
+    def nb_hydrogen(self) -> int:
+        """Return the number of hydrogen bonds in the base pair."""
+        if self._base_gauche.symbol() in {"A", "T"}:
             return 2
-        elif self._baseGauche.symbol() in ["C", "G"]:
+        if self._base_gauche.symbol() in {"C", "G"}:
             return 3
         return 0
+
+    def nbHydrogen(self) -> int:
+        """Backward-compatible alias for nb_hydrogen()."""
+        return self.nb_hydrogen()
+
+    def toString(self) -> str:
+        """Backward-compatible alias for to_string()."""
+        return self.to_string()
+
+
+complements = COMPLEMENTS
 

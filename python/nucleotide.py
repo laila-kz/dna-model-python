@@ -1,105 +1,90 @@
+"""DNA nucleotide models."""
+
+from __future__ import annotations
+
 import random
-import time
+from typing import Final
 
-# Dictionnaire de complémentarité pour les bases ADN.
-# Il sera utilisé pour déterminer la base complémentaire d'une entrée donnée.
-complements = {"A": "T", "T": "A", "C": "G", "G": "C"}
+VALID_BASES: Final[tuple[str, ...]] = ("A", "T", "C", "G")
+COMPLEMENTS: Final[dict[str, str]] = {"A": "T", "T": "A", "C": "G", "G": "C"}
 
 
-# =============================================================================
-# Classe Nucleotide
-# =============================================================================
 class Nucleotide:
-    """
-    Représente un nucléotide avec une base (A, T, C ou G) et un type (purine/pyrimidine).
-    La classe gère la conversion en majuscules et vérifie la validité de l'entrée.
-    """
+    """Represent a single DNA base and its complementary base."""
 
-    def __init__(self, nom=None):
-        # Vérifier que le paramètre 'nom' est un caractère.
-        if __name__==Nucleotide:
-            print("\nCREATION D'UN NUCLEOTIDE\n")
-        attempt=1
-        time.sleep(5)
-        while True:
-            try:
-                if not nom:
-                    raise ValueError("Un nucléotide doit être fourni (par exemple 'A', 'T', 'C' ou 'G').")
-                
-                # Conversion de l'entrée en majuscules (même si ce n'est pas une base azotée) pour uniformiser l'information.
-                nom = nom.upper()
-                if nom in ["A", "T", "C", "G"]:
-                    self._nom = nom
-                    break
-                # Si le caractère n'est pas valide, on choisit aléatoirement une base parmi A, T, C, G.
-                if (attempt<4):
-                    if (nom not in ["A", "T", "C", "G"]):
-                        raise ValueError(f"Caractère entré invalide...\nIl vous reste {4-attempt} tentatives")
-                
-                print("Vous avez épuisé vos tentatives d'entrer un caractère..."); time.sleep(2); print("Choix aléatoire de caractère"); time.sleep(2)
-                self._nom = random.choice(["A", "T", "C", "G"])
-                print(f"Nouveau nucléotide à symbol: {self.symbol()}")
-                break
-            except ValueError as e:
-                print(f"\n{e}")
-                time.sleep(3)
-                nom = str(input("Veuillez entrer le symbole du nucléotide: ")).strip()
-                attempt+=1
-                continue
+    __slots__ = ("_symbol", "_complement")
 
-        # Calcul de la base complémentaire.
-        self._complementaire = self.getComplementaire()
+    def __init__(self, symbol: str | None = None, *, rng: random.Random | None = None) -> None:
+        """Create a nucleotide.
 
-    def symbol(self):
+        Args:
+            symbol: One of A, T, C, or G. When omitted, a base is chosen randomly.
+            rng: Optional random generator for deterministic tests.
         """
-        Retourne le symbole de la base (ex: 'A').
-        """
-        return self._nom
+        if symbol is None:
+            randomizer = rng or random
+            symbol = randomizer.choice(VALID_BASES)
 
-    def getComplementaire(self):
-        """
-        Retourne la base complémentaire selon le dictionnaire 'complements'.
-        """
-        return complements.get(self._nom, None)
+        normalized = str(symbol).strip().upper()
+        if normalized not in VALID_BASES:
+            raise ValueError("Nucleotide must be one of: A, T, C, G.")
 
-    def toString(self):
-        """
-        Retourne une représentation textuelle de ce nucléotide.
-        Par exemple, "P-D-A" pour une base A.
-        """
-        return f"P-D-{self._nom}"
+        self._symbol = normalized
+        self._complement = COMPLEMENTS[normalized]
+
+    def symbol(self) -> str:
+        """Return the nucleotide symbol."""
+        return self._symbol
+
+    def complement(self) -> str:
+        """Return the complementary base."""
+        return self._complement
+
+    def getComplementaire(self) -> str:
+        """Backward-compatible alias for complement()."""
+        return self.complement()
+
+    def to_string(self) -> str:
+        """Return a human-readable representation of the nucleotide."""
+        return f"P-D-{self._symbol}"
+
+    def __str__(self) -> str:
+        return self.to_string()
 
 
-# =============================================================================
-# Classes spécialisées pour chaque base (A, T, C, G)
-# Ils héritent de Nucleotide pour simplifier la création d'instances valides.
-# =============================================================================
 class A(Nucleotide):
-    def __init__(self):
-        super().__init__('A')
+    """Adenine nucleotide."""
+
+    def __init__(self) -> None:
+        super().__init__("A")
 
 
 class T(Nucleotide):
-    def __init__(self):
-        super().__init__('T')
+    """Thymine nucleotide."""
+
+    def __init__(self) -> None:
+        super().__init__("T")
 
 
 class C(Nucleotide):
-    def __init__(self):
-        super().__init__('C')
+    """Cytosine nucleotide."""
+
+    def __init__(self) -> None:
+        super().__init__("C")
 
 
 class G(Nucleotide):
-    def __init__(self):
-        super().__init__('G')
+    """Guanine nucleotide."""
+
+    def __init__(self) -> None:
+        super().__init__("G")
 
 
-# =============================================================================
-# Fonction utilitaire pour générer un nucléotide aléatoire.
-# =============================================================================
-def generate_random_nucleotide():
-    """
-    Génère un nucléotide au hasard parmi A, T, C et G.
-    Retourne une instance de A, T, C ou G.
-    """
-    return random.choice([A(), T(), C(), G()])
+def generate_random_nucleotide(rng: random.Random | None = None) -> Nucleotide:
+    """Generate a random nucleotide instance from the supported DNA bases."""
+    randomizer = rng or random
+    base = randomizer.choice(VALID_BASES)
+    return {"A": A(), "T": T(), "C": C(), "G": G()}[base]
+
+
+complements = COMPLEMENTS

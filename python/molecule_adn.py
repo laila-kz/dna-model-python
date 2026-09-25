@@ -1,317 +1,216 @@
-import sys
+"""DNA molecule model with sequence operations and memory optimization checks."""
+
+from __future__ import annotations
+
+import math
 import random
-from bitarray import bitarray # type: ignore
-from .pont_adn import PontADN
-from .nucleotide import complements
+import sys
+from typing import Iterable
 
-# =============================================================================
-# Classe MoleculeADN
-# =============================================================================
+try:
+    from .pont_adn import PontADN
+    from .nucleotide import COMPLEMENTS
+except ImportError:  # pragma: no cover - support direct execution
+    from python.pont_adn import PontADN
+    from python.nucleotide import COMPLEMENTS
+
+
 class MoleculeADN:
-    """
-    Représente une molécule d'ADN constituée d'une liste de ponts (PontADN).
-    Fournit plusieurs méthodes pour extraire un fragment, rechercher un motif,
-    afficher un fragment de manière graphique et mesurer le taux de fusion.
-    
-    De plus, des méthodes d'optimisation mémoire sont intégrées:
-      - compactRepresentation() : Représente la molécule sous forme compacte en utilisant bitarray.
-        # Cette méthode réduit la taille en mémoire en codant chaque base sur 2 bits au lieu d'utiliser des objets Python complets.
-        
-      - rawSize() : Calcule la taille approximative du stockage naïf de l'objet.
-        # Cette méthode évalue la taille brute en octets de la liste d'objets PontADN et de leurs attributs.
-        
-      - optimizedSize() : Calcule la taille de la représentation compacte.
-        # Cette méthode évalue la taille de la représentation compacte en mémoire en tenant compte des attributs des objets.
-        
-      - optimizationFactor() : Calcule le facteur d'optimisation (rapport rawSize/optimizedSize  qui doit === 1/8).
-        # Cette méthode évalue le rapport entre la taille brute et la taille optimisée.
-    """
+    """Represent a DNA molecule as a sequence of complementary base bridges."""
 
-    def __init__(self, nb=50):
-        # Initialisation : Le nombre de ponts doit être strictement supérieur à 0.
-        while True:
-            try:
-                if nb <= 0:
-                    raise ValueError("Le nombre de ponts ADN doit être supérieur à 0.")
-                self.nb = nb
-                # Création d'une liste de ponts.
-                choix = int(input("vous désirez un choix aléatoire(1) de la base ou pas(2) ? [1/2]\n==>"))
-                self.brin = [PontADN(choix=choix) for _ in range(nb)]
-                break
-            except ValueError as e:
-                print(e)
-                nb = int(input("Entrer un nombre valide: "))
-    
-    def getFragment(self, pos=1, leng=10):
-        """
-        Extrait et retourne un fragment de la molécule.
-        
-        Paramètres:
-            pos (int) : Position de départ (indice 1-based)
-            leng (int) : Longueur du fragment à extraire
-            
-        La position est convertie en indice 0-based.
-        """
+    __slots__ = ("nb", "brin", "_rng")
 
-        try:
-            if pos < 1 or leng <= 0:
-                raise ValueError(
-                    "La position doit être supérieure à 0 et la longueur positive."
-                )
-            
-            fragment = []
-            pos -= 1  # Conversion en indice 0-based
-            for i in range(pos, min(pos + leng, len(self.brin))):
-                fragment.append(self.brin[i].toString())
-            return "\n".join(fragment)
-        except ValueError as e:
-            print(e)
-            pos = int(input("Veuillez entrer la position du premier élément du fragment (>0): "))
-            leng = int(input("Veuillez entrer la longueur du fragment (>=0): "))
-            return self.getFragment(pos, leng)
+    def __init__(self, nb: int = 50, *, rng: random.Random | None = None, seed: int | None = None) -> None:
+        """Create a molecule composed of a sequence of bridges.
 
-    def firstOccurence(self, cara):
+        Args:
+            nb: number of bridges in the strand.
+            rng: optional random generator.
+            seed: seed for deterministic generation.
         """
-        Recherche et retourne la première occurrence d'un pont dont la base gauche
-        correspond au caractère 'cara'. Le paramètre est converti en majuscule pour la cohérence.
-        """
-        while True:
-            try:
-                # Vérification du type d'entrée.
-                if not isinstance(cara, str):
-                    raise ValueError("ERREUR! Le paramètre doit être une chaîne de caractères.")
-                
-                # Conversion en majuscules pour traitement uniforme.
-                cara = cara.upper()
-                if cara not in ["A", "T", "C", "G"]:
-                    raise ValueError("ERREUR! Le caractère doit être soit A, T, C, ou G.")
-                
-                # Affichage préliminaire de la liaison recherchée.
-                chn = PontADN(cara, 2).toString()
-                print(f"Recherche de la première occurrence de la liaison {chn}...")
-                pos = 0
-                for elm in self.brin:
-                    if elm._baseGauche.symbol() == cara:
-                        print (f"***Liaison {chn} trouvée à la position {pos+1}")
-                        return
-                    pos += 1
-                print (f"***Liaison {chn} non trouvée !")
-                return
-            
-            except ValueError as e:
-                print(e)
-                cara = input("Veuillez entrer un caractère valide (A, T, C, G): ")
+        if nb <= 0:
+            raise ValueError("The number of DNA bridges must be greater than zero.")
 
-    
-    def displayFragment(self, pos=-1, leng=-1):
-            """
-            Affiche graphiquement un fragment de la molécule.
-            L'affichage utilise des symboles pour représenter visuellement les ponts.
-            """
-            
-            while True:
-                try:
-                    if pos < 1 or leng <= 0:
-                        raise ValueError(
-                            "\n\nLa position doit être supérieure à 0 et la longueur positive."
-                        )
-                    
-                    # Dictionnaire pour choisir le type de liaison visuelle (p.ex. '=' ou '≡')
-                    egal = {"A": "=", "T": "=", "C": "≡", "G": "≡"}
-                    pos -= 1  # Conversion en index 0-based
-                    for i in range(pos, min(pos + leng, len(self.brin))):
-                        # Récupération de la base gauche pour l'affichage.
-                        base = self.brin[i]._baseGauche.symbol()
-                        print("P       P")
-                        print(" \\     /")
-                        # Affiche le pont avec le symbole et le mot de liaison correspondant.
-                        print(f"  D{base}{egal[base]}{complements.get(base, '?')}D")
-                        print(" /     \\")
-                    print("P       P")
-                    break
-                except ValueError as e:
-                    print(e)
-                    pos = int(input("Veuillez entrer la position (>0): "))
-                    leng = int(input("Veuillez entrer la longueur (>=0): "))
+        self._rng = rng or random.Random(seed)
+        self.nb = nb
+        self.brin = [PontADN(rng=self._rng) for _ in range(nb)]
 
+    @property
+    def strands(self) -> list[PontADN]:
+        """Return the bridges composing the molecule."""
+        return self.brin
 
-    def fusionRate(self, pos=1, leng=10):
-        """
-        Calcule et retourne le taux de fusion pour un fragment de la molécule.
-        
-        Le taux de fusion est ici défini comme le rapport (nombre de bases A ou T) / 
-        (nombre de bases C ou G) pour le fragment considéré.
-        """
-        while True:
-            try:
-                if pos < 1 or leng <= 0:
-                    raise ValueError(
-                        "La position doit être supérieure à 0 et la longueur positive."
-                    )
-                at = 0
-                cg = 0
-                pos -= 1  # Conversion en indice 0-based
-                for i in range(pos, min(pos + leng, len(self.brin))):
-                    if self.brin[i]._baseGauche.symbol() in ["A", "T"]:
-                        at += 1
-                    else:
-                        cg += 1
-                return at / cg if cg != 0 else float('infini !')
-            
-            except ValueError as e:
-                print(e)
-                pos = int(input("Veuillez entrer la position (>0): "))
-                leng = int(input("Veuillez entrer la longueur (>0): "))
+    def __len__(self) -> int:
+        return len(self.brin)
 
-    def searchPattern(self, chn="AAA"):
-        """
-        Cherche un motif (chaîne de bases) au sein du brin principal de la molécule.
-        
-        Le motif est recherché dans la séquence formée par les bases gauches des ponts
-        ainsi que dans leur complémentaire.
-        Le paramètre 'chn' est attendu sous forme de chaîne et converti en majuscules.
-        """
-        while True:
-            try:
-                if not isinstance(chn, str):
-                    raise ValueError("La chaîne doit être une chaîne de caractères.")
-                
-                # Conversion en majuscules pour normaliser
-                chn = chn.upper()
-                if not all(cara in ["A", "T", "C", "G"] for cara in chn):
-                    raise ValueError("Problème : la chaîne doit être composée uniquement de A, T, C, G.")
-                if len(chn) > self.nb:
-                    raise ValueError("Longueur de la chaîne trop longue !")
-                
-                # Construction d'une chaîne complète à partir du brin principal (la séquence des bases gauches)
-                brinChn = ''.join(elm._baseGauche.symbol() for elm in self.brin)
-                complement_brinChn = ''.join(complements[cara] for cara in brinChn)
-                
-                # Si la chaîne a exactement la longueur du brin, on compare l'ensemble de la molécule.
-                if len(chn) == self.nb:
-                    if brinChn == chn or complement_brinChn == chn:
-                        print("***Il s'agit de la molécule entière !")
-                        break
-                    else:
-                        print( "***La chaîne ne correspond pas à la molécule entière.")      
-                        break          
-                # Recherche du motif dans le brin principal ou dans son complément.
-                for i in range(self.nb - len(chn) + 1):
-                    if brinChn[i:i+len(chn)] == chn or complement_brinChn[i:i+len(chn)] == chn:
-                        print(f"***Motif trouvé à la position {i + 1}")
-                        break
-                    else :
-                        print("***Motif non trouvé.")
-                        break
-            
-            except ValueError as e:
-                print(e)
-                chn = input("Veuillez entrer une chaîne valide (composée de A, T, C, G) : ")
+    def __iter__(self) -> Iterable[PontADN]:
+        return iter(self.brin)
 
-    # -----------------------------------------------------------------------------
-    # Partie Optimisation Mémoire
-    # -----------------------------------------------------------------------------
+    def to_string(self) -> str:
+        """Return the full strand as a newline-separated sequence of bridge strings."""
+        return "\n".join(pont.to_string() for pont in self.brin)
 
-    def compactRepresentation(self):
-        """
-        Convertit la séquence d'ADN (le brin principal) en une représentation compacte
-        utilisant la bibliothèque bitarray.
+    def get_fragment(self, pos: int = 1, leng: int = 10) -> str:
+        """Extract a fragment delimited by 1-based positions."""
+        if pos < 1 or leng <= 0:
+            raise ValueError("Position must be >= 1 and length must be > 0.")
 
-        Chaque base est codée sur 2 bits comme suit :
-            - A : '00'
-            - T : '01'
-            - C : '10'
-            - G : '11'
+        start_index = pos - 1
+        end_index = min(len(self.brin), start_index + leng)
+        return "\n".join(self.brin[i].to_string() for i in range(start_index, end_index))
 
-        Retourne un objet bitarray représentant la molécule.
-        """
-        mapping = {"A": "00", "T": "01", "C": "10", "G": "11"}
-        bits_string = ""
-        for pont in self.brin:
-            base = pont._baseGauche.symbol()
-            
-            # Vérifier que la base est dans le mapping pour éviter toute erreur inattendue.
-            if base not in mapping:
-                raise ValueError(f"Base inconnue dans la molécule: {base}")
-            
-            bits_string += mapping[base]
-        
-        ba = bitarray(endian='big')
-        """La méthode `bitarray` crée un tableau de bits, et l'attribut `endian='big'` 
-        spécifie que les bits les plus significatifs sont stockés en premier :
-        
-        Imaginons que vous voulez représenter le nombre 5 en binaire (101), et que vous utilisez un tableau de 8 bits :
-        Avec endian='big', les bits sont stockés comme : 00000101 (les bits importants à gauche).
-        Avec endian='little', les bits sont stockés comme : 10100000 (les bits importants à droite).
-        """
-        
-        ba.extend(bits_string)
-        """
-        La méthode `extend` permet d'ajouter la chaîne de bits à l'objet bitarray.
-        Fonctionnement :
-        La méthode lit chaque caractère de la chaîne bits_string et l'ajoute comme un bit dans le tableau ba.
-        Si bits_string = "1101", alors après cette opération, ba contiendra les bits [1, 1, 0, 1].        
-        """
-        print(f"- Représentation compacte de la chaine en écriture bitarray : {ba}")
-        return ba
+    def first_occurrence(self, base: str) -> str:
+        """Find the first bridge whose left base matches the provided base."""
+        normalized = str(base).strip().upper()
+        if normalized not in COMPLEMENTS:
+            raise ValueError("Base must be one of A, T, C, or G.")
 
-    def rawSize(self):
-        """
-        Calcule une taille approximative en mémoire de la représentation naïve
-        de la molécule, c'est-à-dire la taille occupée par la liste contenant tous les objets.
-        
-        Remarque : sys.getsizeof ne prend pas en compte la totalité de la mémoire 
-        utilisée par les objets imbriqués, mais donne une estimation suffisante pour comparer.
-        """
-        total = sys.getsizeof(self.brin)
-        for pont in self.brin:
-            total += sys.getsizeof(pont)
-            total += sys.getsizeof(pont._baseGauche)
-            total += sys.getsizeof(pont._baseDroite)
-        print(f"- Taille approximative en mémoire de la molécule: {total} octets")
-        return total
+        for index, bridge in enumerate(self.brin, start=1):
+            if bridge.symbol_gauche() == normalized:
+                return f"Bridge {normalized} found at position {index}."
 
-    def optimizedSize(self):
-        """
-        Renvoie la taille en mémoire de la représentation compacte obtenue grâce à bitarray.
-        """
-        compact = self.compactRepresentation()
-        total =sys.getsizeof(compact)
-        print(f"- Taille approximative en mémoire de représentation compacte: {total} octets")
-        return total
+        return f"Bridge {normalized} not found in the molecule."
 
-    def optimizationFactor(self):
-        """
-        Calcule et renvoie le facteur d'optimisation obtenu grâce à la représentation compacte.
-        
-        Ce facteur est défini par le rapport : taille brute / taille optimisée.
-        L'objectif est d'atteindre un facteur d'au moins 1/8.
-        """
-        raw = self.rawSize()
-        compact = self.optimizedSize()
-        try:
-            factor = raw / compact
-        except ZeroDivisionError:
-            raise ValueError("La taille optimisée est nulle, vérification impossible.")
-        return round(factor, 3)
-
-def displayFragment(liste=None):
-        """
-        Affiche graphiquement un fragment récupéré de la molécule.
-        L'affichage utilise des symboles pour représenter visuellement les ponts.
-        """        
-        # Dictionnaire pour choisir le type de liaison visuelle (p.ex. '=' ou '≡')
-        egal = {"A": "=", "T": "=", "C": "≡", "G": "≡"}
-        indice = 0
-        for _ in range(len(liste)):
-            # Récupération de la base gauche pour l'affichage.
-            base = liste[indice]
+    def display_fragment(self, pos: int = 1, leng: int = 10) -> None:
+        """Display a sequence of bridge symbols in a simple ASCII style."""
+        fragment = self.get_fragment(pos, leng)
+        for item in fragment.splitlines():
+            left_base = item.split("-")[0]
+            right_base = item.split("-")[1]
+            connector = "=" if left_base in {"A", "T"} else "≡"
             print("P       P")
             print(" \\     /")
-            # Affiche le pont avec le symbole et le mot de liaison correspondant.
-            print(f"  D{base}{egal[base]}{complements.get(base, '?')}D")
+            print(f"  D{left_base}{connector}{right_base}D")
             print(" /     \\")
-            #compare si l'on est arrivé à la fin de la liste
-            indice+=4
-            if indice >= len(liste): break
         print("P       P")
+
+    def fusion_rate(self, pos: int = 1, leng: int = 10) -> float:
+        """Return the fusion ratio of A/T versus C/G in a fragment."""
+        if pos < 1 or leng <= 0:
+            raise ValueError("Position must be >= 1 and length must be > 0.")
+
+        start_index = pos - 1
+        end_index = min(len(self.brin), start_index + leng)
+        at_count = 0
+        cg_count = 0
+
+        for bridge in self.brin[start_index:end_index]:
+            if bridge.symbol_gauche() in {"A", "T"}:
+                at_count += 1
+            else:
+                cg_count += 1
+
+        if cg_count == 0:
+            return math.inf
+        return at_count / cg_count
+
+    def search_pattern(self, pattern: str) -> str:
+        """Search for a DNA motif in the molecule's primary strand or its complement."""
+        normalized = str(pattern).strip().upper()
+        if not normalized or any(base not in COMPLEMENTS for base in normalized):
+            raise ValueError("Pattern must contain only A, T, C, or G.")
+
+        strand = "".join(bridge.symbol_gauche() for bridge in self.brin)
+        complement = "".join(COMPLEMENTS[base] for base in strand)
+
+        if len(normalized) == len(strand):
+            if strand == normalized or complement == normalized:
+                return "The entire molecule matches the pattern."
+            return "The full molecule does not match the pattern."
+
+        for index in range(len(strand) - len(normalized) + 1):
+            window = strand[index : index + len(normalized)]
+            complement_window = complement[index : index + len(normalized)]
+            if window == normalized or complement_window == normalized:
+                return f"Pattern found at position {index + 1}."
+
+        return "Pattern not found."
+
+    def compact_representation(self) -> str:
+        """Pack the left-side bases using a 2-bit encoding scheme."""
+        mapping = {"A": "00", "T": "01", "C": "10", "G": "11"}
+        bits = "".join(mapping[bridge.symbol_gauche()] for bridge in self.brin)
+        return bits
+
+    def raw_size(self) -> int:
+        """Estimate the memory footprint of the naïve object representation."""
+        total = sys.getsizeof(self.brin)
+        for bridge in self.brin:
+            total += sys.getsizeof(bridge)
+            total += sys.getsizeof(bridge._base_gauche)
+            total += sys.getsizeof(bridge._base_droite)
+        return total
+
+    def optimized_size(self) -> int:
+        """Estimate the footprint of the compact representation."""
+        compact = self.compact_representation()
+        return sys.getsizeof(compact)
+
+    def optimization_factor(self) -> float:
+        """Return the memory optimization factor versus the naïve representation."""
+        raw = self.raw_size()
+        optimized = self.optimized_size()
+        if optimized == 0:
+            return 0.0
+        return round(raw / optimized, 3)
+
+    def getFragment(self, pos: int = 1, leng: int = 10) -> str:
+        """Backward-compatible alias for get_fragment()."""
+        return self.get_fragment(pos, leng)
+
+    def firstOccurence(self, base: str) -> str:
+        """Backward-compatible alias for first_occurrence()."""
+        return self.first_occurrence(base)
+
+    def displayFragment(self, pos: int = 1, leng: int = 10) -> None:
+        """Backward-compatible alias for display_fragment()."""
+        self.display_fragment(pos, leng)
+
+    def fusionRate(self, pos: int = 1, leng: int = 10) -> float:
+        """Backward-compatible alias for fusion_rate()."""
+        return self.fusion_rate(pos, leng)
+
+    def searchPattern(self, pattern: str) -> str:
+        """Backward-compatible alias for search_pattern()."""
+        return self.search_pattern(pattern)
+
+    def compactRepresentation(self) -> str:
+        """Backward-compatible alias for compact_representation()."""
+        return self.compact_representation()
+
+    def rawSize(self) -> int:
+        """Backward-compatible alias for raw_size()."""
+        return self.raw_size()
+
+    def optimizedSize(self) -> int:
+        """Backward-compatible alias for optimized_size()."""
+        return self.optimized_size()
+
+    def optimizationFactor(self) -> float:
+        """Backward-compatible alias for optimization_factor()."""
+        return self.optimization_factor()
+
+    def __str__(self) -> str:
+        return self.to_string()
+
+
+def displayFragment(liste: list[str] | str | None = None) -> None:
+    """Display a DNA fragment in a simple graphical format."""
+    if liste is None:
+        return
+
+    if isinstance(liste, str):
+        rows = [line for line in liste.splitlines() if line.strip()]
+    else:
+        rows = [str(item) for item in liste]
+
+    for item in rows:
+        left_base = item.split("-")[0]
+        right_base = item.split("-")[1]
+        connector = "=" if left_base in {"A", "T"} else "≡"
+        print("P       P")
+        print(" \\     /")
+        print(f"  D{left_base}{connector}{right_base}D")
+        print(" /     \\")
+    print("P       P")
+
